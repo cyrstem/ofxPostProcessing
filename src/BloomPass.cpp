@@ -80,24 +80,24 @@ namespace itg
     void BloomPass::beginSelectiveGlow(bool clear)
     {
         selectiveGlow.begin();
-        glPushMatrix();
-        glScalef(1, -1, 1);
-        glTranslatef(0, -ofNextPow2(h), 0);
+		ofPushMatrix();
+        ofScale(1, -1, 1);
+        ofTranslate(0, -ofNextPow2(h), 0);
         if (clear) ofClear(0,0,0, 255);
     }
     
     void BloomPass::endSelectiveGlow()
     {
-        glPopMatrix();
+        ofPopMatrix();
         selectiveGlow.end();
     }
     
     void BloomPass::debugDraw()
     {
-        glPushMatrix();
-        glScalef(1, -1, 1);
+		ofPushMatrix();
+		ofScale(1, -1, 1);
         selectiveGlow.draw(0, -selectiveGlow.getHeight());
-        glPopMatrix();
+		ofPopMatrix();
     }
     
     void BloomPass::render(ofFbo& readFbo, ofFbo& writeFbo)

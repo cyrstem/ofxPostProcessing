@@ -80,6 +80,7 @@ namespace itg
         void texturedQuad(float x, float y, float width, float height, float s = 1.0, float t = 1.0);
         
         ofVec2f aspect;
+		ofVbo vbo;
         
         bool arb;
     

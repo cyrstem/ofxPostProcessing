@@ -38,18 +38,23 @@ namespace itg
         imageIncrement(imageIncrement), RenderPass(aspect, arb, "convolution")
     {
         string vertShaderSrc = STRINGIFY(
-            uniform vec2 imageIncrement;
+			
+			uniform vec2 imageIncrement;
             uniform vec2 resolution;
-                                         
-            varying vec2 vUv;
-            varying vec2 scaledImageIncrement;
+            
+			uniform mat4 modelViewProjectionMatrix;
+
+			layout(location = 0) in vec4 position;
+			layout(location = 3) in vec2 texcoord;
+            
+			out vec2 vUv;
+            out vec2 scaledImageIncrement;
             
             void main()
             {
-                gl_TexCoord[0] = gl_MultiTexCoord0;
                 scaledImageIncrement = imageIncrement * resolution;
-                vUv = gl_TexCoord[0].st - ( ( KERNEL_SIZE - 1.0 ) / 2.0 ) * scaledImageIncrement;
-                gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+				vUv = texcoord -((KERNEL_SIZE - 1.0) / 2.0) * scaledImageIncrement;
+                gl_Position = modelViewProjectionMatrix * position;
             }
         );
         
@@ -58,9 +63,10 @@ namespace itg
             uniform SAMPLER_TYPE readTex;
             uniform vec2 imageIncrement;
             
-            varying vec2 vUv;
-            varying vec2 scaledImageIncrement;
+            in vec2 vUv;
+            in vec2 scaledImageIncrement;
                                          
+			layout(location = 0) out vec4 color;
             void main()
             {
             
@@ -73,16 +79,17 @@ namespace itg
                     imageCoord += scaledImageIncrement;
                 }
                 
-                gl_FragColor = sum;
+				color = sum;
+
             }
         );
         
         ostringstream oss;
-        oss << "#version 120\n#define KERNEL_SIZE " << kernelSize << ".0" << endl << vertShaderSrc;
+        oss << "#version 330\n#define KERNEL_SIZE " << kernelSize << ".0" << endl << vertShaderSrc;
         shader.setupShaderFromSource(GL_VERTEX_SHADER, oss.str());
         
         oss.str("");
-        oss << "#version 120\n#define KERNEL_SIZE " << kernelSize << endl;
+        oss << "#version 330\n#define KERNEL_SIZE " << kernelSize << endl;
         if (arb)
         {
             oss << "#define SAMPLER_TYPE sampler2DRect" << endl;
@@ -110,9 +117,10 @@ namespace itg
     void ConvolutionPass::render(ofFbo& readFbo, ofFbo& writeFbo)
     {
         writeFbo.begin();
-        
-        ofClear(0, 0, 0, 255);
-        
+
+		ofClear(0, 0, 0, 255);
+
+		
         shader.begin();
         
         shader.setUniformTexture("readTex", readFbo, 0);
@@ -123,9 +131,11 @@ namespace itg
         
         if (arb) texturedQuad(0, 0, writeFbo.getWidth(), writeFbo.getHeight(), readFbo.getWidth(), readFbo.getHeight());
         else texturedQuad(0, 0, writeFbo.getWidth(), writeFbo.getHeight());
-        
+
+
         shader.end();
         writeFbo.end();
+
     }
     
     void ConvolutionPass::buildKernel(float sigma)
