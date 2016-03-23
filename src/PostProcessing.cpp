@@ -34,6 +34,26 @@
 
 namespace itg
 {
+
+	void PostProcessing::init(ofFbo::Settings s)
+	{
+		this->width = s.width;
+		this->height = s.width;
+		this->arb = s.textureTarget == GL_TEXTURE_RECTANGLE_ARB ;
+		
+		// no need to use depth for ping pongs
+		for (int i = 0; i < 2; ++i)
+		{
+			pingPong[i].allocate(s);
+		}
+
+		raw.allocate(s);
+
+		numProcessedPasses = 0;
+		currentReadFbo = 0;
+		flip = false;
+	}
+
     void PostProcessing::init(unsigned width, unsigned height, bool arb)
     {
         this->width = width;

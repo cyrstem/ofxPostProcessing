@@ -41,8 +41,9 @@ namespace itg
     public:
         typedef shared_ptr<PostProcessing> Ptr;
         
-        void init(unsigned width = ofGetWidth(), unsigned height = ofGetHeight(), bool arb = false);
-        void begin();
+		void init( ofFbo::Settings fboSettings );
+		void init(unsigned width = ofGetWidth(), unsigned height = ofGetHeight(), bool arb = false);
+		void begin();
         void begin(ofCamera& cam);
         void end(bool autoDraw = true);
         
