@@ -40,14 +40,16 @@ namespace itg
 		this->width = s.width;
 		this->height = s.width;
 		this->arb = s.textureTarget == GL_TEXTURE_RECTANGLE_ARB ;
-		
+
+		raw.allocate(s);
+
+		s.useDepth = false;
+		s.depthStencilAsTexture = false;
 		// no need to use depth for ping pongs
 		for (int i = 0; i < 2; ++i)
 		{
 			pingPong[i].allocate(s);
 		}
-
-		raw.allocate(s);
 
 		numProcessedPasses = 0;
 		currentReadFbo = 0;
