@@ -1,7 +1,8 @@
 /*
- *  BloomPass.h
+ *  AdvancedBloomPass.h
  *
  *  Copyright (c) 2012, Neil Mendoza, http://www.neilmendoza.com
+ *  Copyright (c) 2016, Patrick Fürst, http://www.patrickfuerst.at
  *  All rights reserved. 
  *  
  *  Redistribution and use in source and binary forms, with or without 
@@ -33,35 +34,37 @@
 
 #include "RenderPass.h"
 #include "ConvolutionPass.h"
+#include "BrightnessFilterPass.h"
 
 namespace itg
 {
-    class BloomPass : public RenderPass
+    class AdvancedBloomPass : public RenderPass
     {
     public:
-        typedef shared_ptr<BloomPass> Ptr;
+        typedef shared_ptr<AdvancedBloomPass> Ptr;
         
-        BloomPass(const ofVec2f& aspect, bool arb, const ofVec2f& xBlur = ofVec2f(0.001953125, 0.0), const ofVec2f& yBlur = ofVec2f(0.0, 0.001953125), unsigned resolution = 256, bool aspectCorrect = true);
+		AdvancedBloomPass(const ofVec2f& aspect, bool arb, const ofVec2f& xBlur = ofVec2f(0.001953125, 0.0), const ofVec2f& yBlur = ofVec2f(0.0, 0.001953125), unsigned resolution = 256, bool aspectCorrect = true);
         
         void render(ofFbo& readFbo, ofFbo& writeFbo);
         
-        void allocateSelectiveGlow(unsigned w, unsigned h);
-        void beginSelectiveGlow(bool clear = true);
-        void endSelectiveGlow();
-        
-        void debugDraw();
-        
+
+		void setBrightnessFilterEnabled(bool enabled) { brightnessFilter->setEnabled(enabled); };
+		BrightnessFilterPass::Ptr getBrightnessFilterPass() { return brightnessFilter; }; 
+
+
         bool hasArbShader() { return true; }
         
     private:
         ConvolutionPass::Ptr xConv;
         ConvolutionPass::Ptr yConv;
+
+		BrightnessFilterPass::Ptr brightnessFilter; 
         
-        ofFbo selectiveGlow;
         // small fbos for rendering stuff to glow
         ofFbo fbos[2];
         
         unsigned currentReadFbo;
         unsigned w, h;
+
     };
 }

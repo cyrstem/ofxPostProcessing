@@ -31,6 +31,8 @@
  */
 #pragma once
 
+#include "AdvancedBloomPass.h"
+#include "BrightnessFilterPass.h"
 #include "BloomPass.h"
 #include "ConvolutionPass.h"
 #include "DofPass.h"
