@@ -39,7 +39,6 @@ namespace itg
     class ContrastPass : public RenderPass
     {
     public:
-        static const int MAX_KERNEL_SIZE = 25;
         
         typedef shared_ptr<ContrastPass> Ptr;
         

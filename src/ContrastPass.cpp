@@ -37,29 +37,69 @@ namespace itg
     ContrastPass::ContrastPass(const ofVec2f& aspect, bool arb, float contrast, float brightness) :
         contrast(contrast), brightness(brightness), RenderPass(aspect, arb, "contrast")
     {
-        multiple = 1.0f;
-        string fragShaderSrc = STRINGIFY(uniform sampler2D tex0;
-                                         uniform float contrast;
-                                         uniform float brightness;
-                                         uniform float multiple;
+		
+		string vertShaderSrc = STRINGIFY(
+
+			uniform mat4 modelViewProjectionMatrix;
+			layout(location = 0) in vec4 position;
+			layout(location = 2) in vec4 color;
+			layout(location = 3) in vec2 texcoord;
+
+			out vec2 vUv;
+
+			void main()
+			{
+				vUv = texcoord;
+				gl_Position = modelViewProjectionMatrix * position;
+			}
+		);
+		
+		
+		
+		multiple = 1.0f;
+        string fragShaderSrc = STRINGIFY(
+					
+			uniform SAMPLER_TYPE tex0;
+			uniform float contrast;
+			uniform float brightness;
+			uniform float multiple;
                                          
-                                         void main(){
-                                             vec4 color = texture2D(tex0,gl_TexCoord[0].st);
+			in vec2 vUv;	
+			out vec4 color;
+
+			void main(){
+				vec4 texColor = TEXTURE_FN(tex0, vUv);
                                              
-                                             float p = 0.3 *color.g + 0.59*color.r + 0.11*color.b;
-                                             p = p * brightness;
-                                             vec4 color2 = vec4(p,p,p,1.0);
-                                             color *= color2;
-                                             color *= vec4(multiple,multiple,multiple,1.0);
-                                             color = mix( vec4(1.0,1.0,1.0,1.0),color,contrast);
+				float p = 0.3 *texColor.g + 0.59*texColor.r + 0.11*texColor.b;
+				p = p * brightness;
+				vec4 color2 = vec4(p,p,p,1.0);
+				texColor *= color2;
+				texColor *= vec4(multiple,multiple,multiple,1.0);
+				texColor = mix( vec4(1.0,1.0,1.0,1.0), texColor,contrast);
                                              
-                                             gl_FragColor =  vec4(color.r , color.g, color.b, 1.0);
-                                         }
-                                         );
+				color =  vec4(texColor.r , texColor.g, texColor.b, 1.0);
+			}
+		);
         
-        shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragShaderSrc);
-        shader.linkProgram();
-        
+		ostringstream oss;
+		oss << "#version 330"<< endl << vertShaderSrc;
+		shader.setupShaderFromSource(GL_VERTEX_SHADER, oss.str());
+
+		oss.str("");
+		oss << "#version 330" << endl;
+		if (arb)
+		{
+			oss << "#define SAMPLER_TYPE sampler2DRect" << endl;
+			oss << "#define TEXTURE_FN texture2DRect" << endl;
+		}
+		else
+		{
+			oss << "#define SAMPLER_TYPE sampler2D" << endl;
+			oss << "#define TEXTURE_FN texture2D" << endl;
+		}
+		oss << fragShaderSrc;
+		shader.setupShaderFromSource(GL_FRAGMENT_SHADER, oss.str());
+		shader.linkProgram();
     }
     
 
