@@ -41,6 +41,8 @@ namespace itg
 		string vertShaderSrc = STRINGIFY(
 
 			uniform mat4 modelViewProjectionMatrix;
+		    uniform vec2 resolution;
+
 			layout(location = 0) in vec4 position;
 			layout(location = 3) in vec2 texcoord;
 
@@ -48,7 +50,7 @@ namespace itg
 
 			void main()
 			{
-				vUv = texcoord;
+				vUv = texcoord*resolution;
 				gl_Position = modelViewProjectionMatrix * position;
 			}
 		);
@@ -104,7 +106,8 @@ namespace itg
         
         shader.setUniformTexture("tex0", readFbo, 0);
         shader.setUniform1f("brightnessThreshold", brightnessThreshold);
-        
+		if (arb) shader.setUniform2f("resolution", readFbo.getWidth(), readFbo.getHeight());
+		else shader.setUniform2f("resolution", 1.f, 1.f);
         texturedQuad(0, 0, writeFbo.getWidth(), writeFbo.getHeight());
         
         shader.end();
