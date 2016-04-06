@@ -35,7 +35,7 @@
 
 namespace itg
 {
-	AdvancedBloomPass::AdvancedBloomPass(const ofVec2f& aspect, bool arb, const ofVec2f& xBlur, const ofVec2f& yBlur, unsigned resolution, bool aspectCorrect) : RenderPass(aspect, arb, "advanced bloom")
+	AdvancedBloomPass::AdvancedBloomPass(const ofVec2f& aspect, bool arb, const ofVec2f& xBlur, const ofVec2f& yBlur, unsigned resolution, bool aspectCorrect, bool useHDR) : RenderPass(aspect, arb, "advanced bloom")
     {
         currentReadFbo = 0;
         if (resolution != ofNextPow2(resolution)) ofLogWarning() << "Resolution " << resolution << " is not a power of two, using " << ofNextPow2(resolution);
@@ -46,6 +46,7 @@ namespace itg
 		brightnessFilter = BrightnessFilterPass::Ptr(new BrightnessFilterPass(aspect, arb));
 
         ofFbo::Settings s;
+		s.internalformat = useHDR ? GL_RGBA16F : GL_RGBA8;
         if (arb)
         {
             s.width = resolution;
@@ -90,4 +91,4 @@ namespace itg
         ofDisableAlphaBlending();
         writeFbo.end();
     }
-}
+}	
