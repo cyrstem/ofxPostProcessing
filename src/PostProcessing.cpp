@@ -172,12 +172,11 @@ namespace itg
         if (flip)
         {
             ofPushMatrix();
-            ofTranslate(x, y + h, 0);
+            ofTranslate(0, h, 0);
             ofScale(1, -1, 1);
         }
-        else ofTranslate(x, y, 0);
-        if (numProcessedPasses == 0) raw.draw(0, 0, w, h);
-        else pingPong[currentReadFbo].draw(0, 0, w, h);
+        if (numProcessedPasses == 0) raw.draw(x, y, w, h);
+        else pingPong[currentReadFbo].draw(x, y, w, h);
         if (flip) ofPopMatrix();
     }
     
