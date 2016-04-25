@@ -70,6 +70,9 @@ namespace itg
 				float brightness = dot(texColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 				if (brightness > brightnessThreshold)
 					color = texColor;
+				else
+					color.a = 0.0;
+
 
 			}
 		);
@@ -100,7 +103,7 @@ namespace itg
     {
         writeFbo.begin();
         
-        ofClear(0, 0, 0, 255);
+        ofClear(0, 0, 0, 0);
         
         shader.begin();
         
