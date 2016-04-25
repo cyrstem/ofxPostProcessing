@@ -103,7 +103,7 @@ namespace itg
         ofMatrixMode(GL_MODELVIEW);
         ofPushMatrix();
         
-        glViewport(0, 0, raw.getWidth(), raw.getHeight());
+		ofViewport(0, 0, raw.getWidth(), raw.getHeight());
         
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         
