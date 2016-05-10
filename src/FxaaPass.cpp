@@ -39,19 +39,20 @@ namespace itg
              uniform SAMPLER_TYPE tDiffuse;
              uniform vec2 resolution;
              
-             varying vec2 vUv;
-             
+             in vec2 vUv;
+			 out vec4 outColor;
+
              const float FXAA_REDUCE_MIN = 1.0/128.0;
              const float FXAA_REDUCE_MUL = 1.0/8.0;
              const float FXAA_SPAN_MAX = 8.0;
              
              void main() {
                  
-                 vec3 rgbNW = TEXTURE_FN( tDiffuse, ( gl_FragCoord.xy + vec2( -1.0, -1.0 ) ) * resolution ).xyz;
-                 vec3 rgbNE = TEXTURE_FN( tDiffuse, ( gl_FragCoord.xy + vec2( 1.0, -1.0 ) ) * resolution ).xyz;
-                 vec3 rgbSW = TEXTURE_FN( tDiffuse, ( gl_FragCoord.xy + vec2( -1.0, 1.0 ) ) * resolution ).xyz;
-                 vec3 rgbSE = TEXTURE_FN( tDiffuse, ( gl_FragCoord.xy + vec2( 1.0, 1.0 ) ) * resolution ).xyz;
-                 vec4 rgbaM  = TEXTURE_FN( tDiffuse,  gl_FragCoord.xy  * resolution );
+                 vec3 rgbNW = TEXTURE_FN( tDiffuse, ( vUv.xy + vec2( -1.0, -1.0 ) ) * resolution ).xyz;
+                 vec3 rgbNE = TEXTURE_FN( tDiffuse, ( vUv.xy + vec2( 1.0, -1.0 ) ) * resolution ).xyz;
+                 vec3 rgbSW = TEXTURE_FN( tDiffuse, ( vUv.xy + vec2( -1.0, 1.0 ) ) * resolution ).xyz;
+                 vec3 rgbSE = TEXTURE_FN( tDiffuse, ( vUv.xy + vec2( 1.0, 1.0 ) ) * resolution ).xyz;
+                 vec4 rgbaM  = TEXTURE_FN( tDiffuse,  vUv.xy  * resolution );
                  vec3 rgbM  = rgbaM.xyz;
                  float opacity  = rgbaM.w;
                  
@@ -77,29 +78,29 @@ namespace itg
                                dir * rcpDirMin)) * resolution;
                  
                  vec3 rgbA = 0.5 * (
-                                    TEXTURE_FN( tDiffuse, gl_FragCoord.xy  * resolution + dir * ( 1.0 / 3.0 - 0.5 ) ).xyz +
-                                    TEXTURE_FN( tDiffuse, gl_FragCoord.xy  * resolution + dir * ( 2.0 / 3.0 - 0.5 ) ).xyz );
+                                    TEXTURE_FN( tDiffuse, vUv.xy  * resolution + dir * ( 1.0 / 3.0 - 0.5 ) ).xyz +
+                                    TEXTURE_FN( tDiffuse, vUv.xy  * resolution + dir * ( 2.0 / 3.0 - 0.5 ) ).xyz );
                  
                  vec3 rgbB = rgbA * 0.5 + 0.25 * (
-                                                  TEXTURE_FN( tDiffuse, gl_FragCoord.xy  * resolution + dir * -0.5 ).xyz +
-                                                  TEXTURE_FN( tDiffuse, gl_FragCoord.xy  * resolution + dir * 0.5 ).xyz );
+                                                  TEXTURE_FN( tDiffuse, vUv.xy  * resolution + dir * -0.5 ).xyz +
+                                                  TEXTURE_FN( tDiffuse, vUv.xy  * resolution + dir * 0.5 ).xyz );
                  
                  float lumaB = dot( rgbB, luma );
                  
                  if ( ( lumaB < lumaMin ) || ( lumaB > lumaMax ) ) {
                      
-                     gl_FragColor = vec4( rgbA, opacity );
+                     outColor = vec4( rgbA, opacity );
                      
                  } else {
                      
-                     gl_FragColor = vec4( rgbB, opacity );
+                     outColor = vec4( rgbB, opacity );
                      
                  }
                  
              }
         );
         ostringstream oss;
-        oss << "#version 120" << endl;
+        oss << "#version 150" << endl;
         if (arb)
         {
             oss << "#define SAMPLER_TYPE sampler2DRect" << endl;
@@ -109,9 +110,10 @@ namespace itg
         else
         {
             oss << "#define SAMPLER_TYPE sampler2D" << endl;
-            oss << "#define TEXTURE_FN texture2D" << endl;
+            oss << "#define TEXTURE_FN texture" << endl;
             oss << fragShaderSrc;
         }
+		shader.setupShaderFromFile(GL_VERTEX_SHADER, "shaders/basic-pp.vert");
         shader.setupShaderFromSource(GL_FRAGMENT_SHADER, oss.str());
         shader.linkProgram();
     }

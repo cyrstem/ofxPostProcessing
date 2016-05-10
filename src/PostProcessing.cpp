@@ -113,11 +113,11 @@ namespace itg
     void PostProcessing::begin(ofCamera& cam)
     {
         // update camera matrices
-        cam.begin();
-        cam.end();
-        
+//        cam.begin();
+//        cam.end();
+
         raw.begin(false);
-        
+#if 0
         ofMatrixMode(GL_PROJECTION);
         ofPushMatrix();
         
@@ -128,7 +128,9 @@ namespace itg
 		ofLoadMatrix(cam.getModelViewMatrix().getPtr());
         
         glViewport(0, 0, raw.getWidth(), raw.getHeight());
-        
+#else
+		cam.begin(ofRectangle(0, 0, width, height));
+#endif
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         
         ofPushStyle();
@@ -137,7 +139,8 @@ namespace itg
     void PostProcessing::end(bool autoDraw)
     {
         ofPopStyle();
-        
+
+#if 0
         glViewport(0, 0, ofGetWidth(), ofGetHeight());
         
         ofMatrixMode(GL_PROJECTION);
@@ -145,7 +148,9 @@ namespace itg
         
         ofMatrixMode(GL_MODELVIEW);
         ofPopMatrix();
-        
+#else
+		ofPopView();
+#endif
         raw.end();
         
         ofPushStyle();
